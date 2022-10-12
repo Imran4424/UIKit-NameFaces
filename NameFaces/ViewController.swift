@@ -17,16 +17,18 @@ class ViewController: UICollectionViewController {
         
         let defaults = UserDefaults.standard
         guard let savedPeople = defaults.object(forKey: "people") as? Data else {
-            print("Failed to load savedPeople as data")
+            print("saved data fetching failed")
             return
         }
         
-        let jsonDecoder = JSONDecoder()
-        do {
-            people = try jsonDecoder.decode([Person].self, from: savedPeople)
-        } catch {
-            print("Failed to load people.")
+        print("savedPeople data fetching successful")
+    
+        guard let decodedPeople = try? NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClasses: [Person.self], from: savedPeople) as? [Person] else {
+            print("decode failed")
+            return
         }
+        
+        people = decodedPeople
     }
     
     @objc func addNewPerson() {
@@ -38,14 +40,14 @@ class ViewController: UICollectionViewController {
     }
     
     func save() {
-        let jsonEncoder = JSONEncoder()
-        guard let savedData = try? jsonEncoder.encode(people) else {
-            print("Failed to save people.")
+        guard let savedData = try? NSKeyedArchiver.archivedData(withRootObject: people, requiringSecureCoding: false) else {
+            print("data saving failed")
             return
         }
         
         let defaults = UserDefaults.standard
         defaults.set(savedData, forKey: "people")
+        print("data save successful")
     }
 }
 
