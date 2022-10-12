@@ -22,7 +22,8 @@ class ViewController: UICollectionViewController {
         }
         
         print("savedPeople data fetching successful")
-    
+        
+        // below guard let not working, need to fix it
         guard let decodedPeople = try? NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClasses: [Person.self], from: savedPeople) as? [Person] else {
             print("decode failed")
             return
