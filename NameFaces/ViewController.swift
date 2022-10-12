@@ -14,6 +14,19 @@ class ViewController: UICollectionViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
+        
+        let defaults = UserDefaults.standard
+        guard let savedPeople = defaults.object(forKey: "people") as? Data else {
+            print("Failed to load savedPeople as data")
+            return
+        }
+        
+        let jsonDecoder = JSONDecoder()
+        do {
+            people = try jsonDecoder.decode([Person].self, from: savedPeople)
+        } catch {
+            print("Failed to load people.")
+        }
     }
     
     @objc func addNewPerson() {
@@ -22,6 +35,17 @@ class ViewController: UICollectionViewController {
         imagePicker.allowsEditing = true
         imagePicker.delegate = self
         present(imagePicker, animated: true)
+    }
+    
+    func save() {
+        let jsonEncoder = JSONEncoder()
+        guard let savedData = try? jsonEncoder.encode(people) else {
+            print("Failed to save people.")
+            return
+        }
+        
+        let defaults = UserDefaults.standard
+        defaults.set(savedData, forKey: "people")
     }
 }
 
@@ -68,6 +92,7 @@ extension ViewController {
             
             person.name = newName
             //self?.people[indexPath.item] = person
+            self?.save()
             self?.collectionView.reloadData()
         })
         
@@ -97,6 +122,7 @@ extension ViewController: UIImagePickerControllerDelegate {
         
         let person = Person(name: "Unknown", image: imageName)
         people.append(person)
+        save()
         collectionView.reloadData()
         
         dismiss(animated: true)

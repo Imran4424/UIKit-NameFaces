@@ -7,7 +7,9 @@
 
 import UIKit
 
-class Person: NSObject {
+// Codable works with both struct and class
+// Codable only works with swift
+class Person: NSObject, Codable {
     var name: String
     var image: String
     
